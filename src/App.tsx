@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { getNameList } from "country-list";
-import { CurrentWeatherType } from "./types";
+import { CurrentWeatherType, FutureWeatherType, WeatherList } from "./types";
 import Systems from "./components/Systems";
 import Search from "./components/Search";
+import CurrentWeather from "./components/CurrentWeather";
+import { DayWeather } from "./components/DayWeather";
 
 export default function App() {
   const apiKey = import.meta.env.VITE_API_KEY;
@@ -10,7 +12,7 @@ export default function App() {
 
   const [city, setCity] = useState<string>("");
   const [countryCode, setCountryCode] = useState<string>("XX");
-  const [future, setFuture] = useState();
+  const [future, setFuture] = useState<FutureWeatherType | null>(null);
   const [present, setPresent] = useState<CurrentWeatherType | null>(null);
   const [system, setSystem] = useState<string>("metric");
 
@@ -52,41 +54,33 @@ export default function App() {
           <h2>City not found</h2>
         </div>
       )}
-      <div className="current-container">
-        {present?.cod === 200 && (
-          <div className="current-card">
-            <h2>{present.name}</h2>
-            <img src="" alt="" />
-            <h3>{present.weather[0].description}</h3>
-            <h3>
-              {Math.round(
-                system === "metric"
-                  ? present.main.temp - 273.15
-                  : (present.main.temp - 273.15) * 1.8 + 32
-              )}
-              {system === "metric" ? "°C" : "°F"}
-            </h3>
-            <p>
-              Feels like:{" "}
-              {Math.round(
-                system === "metric"
-                  ? present.main.feels_like - 273.15
-                  : (present.main.feels_like - 273.15) * 1.8 + 32
-              )}
-              {system === "metric" ? "°C" : "°F"}
-            </p>
-            <div className="additional-info">
-              <p>
-                Wind speed:{" "}
-                {system === "metric"
-                  ? (present.wind.speed * 3.6).toFixed(2) + " km/h"
-                  : (present.wind.speed * 2.23694).toFixed(2) + " mph"}
-              </p>
-              <p>Humidity: {present.main.humidity}%</p>
-            </div>
-          </div>
-        )}
-      </div>
+      <CurrentWeather system={system} present={present} />
+      {future?.cod === "200" && (
+        <div>
+          {future.list.some(
+            (item: WeatherList) => new Date(item.dt_txt).getDay() === 0
+          ) && <DayWeather future={future} day={0} system={system} />}
+
+          {future.list.some(
+            (item: WeatherList) => new Date(item.dt_txt).getDay() === 1
+          ) && <DayWeather future={future} day={1} system={system} />}
+          {future.list.some(
+            (item: WeatherList) => new Date(item.dt_txt).getDay() === 2
+          ) && <DayWeather future={future} day={2} system={system} />}
+          {future.list.some(
+            (item: WeatherList) => new Date(item.dt_txt).getDay() === 3
+          ) && <DayWeather future={future} day={3} system={system} />}
+          {future.list.some(
+            (item: WeatherList) => new Date(item.dt_txt).getDay() === 4
+          ) && <DayWeather future={future} day={4} system={system} />}
+          {future.list.some(
+            (item: WeatherList) => new Date(item.dt_txt).getDay() === 5
+          ) && <DayWeather future={future} day={5} system={system} />}
+          {future.list.some(
+            (item: WeatherList) => new Date(item.dt_txt).getDay() === 6
+          ) && <DayWeather future={future} day={6} system={system} />}
+        </div>
+      )}
     </div>
   );
 }
